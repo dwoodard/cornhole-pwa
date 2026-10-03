@@ -176,7 +176,7 @@ function render(){
  if(game.throws.length===8&&game.winner===null){
   const p=projected()
   confirmButton.classList.add('show')
-  confirmButton.textContent=p?('Confirm '+names[p.team]+' +'+p.points):'Confirm Even'
+  confirmButton.textContent=p?('Confirm → '+names[p.team]+' '+((game.scores[p.team]+p.points)>21?11:(game.scores[p.team]+p.points))):'Confirm → No Score'
  }else{
   confirmButton.classList.remove('show')
   confirmButton.textContent='Confirm Round'
