@@ -20,7 +20,7 @@ button{font:inherit}
 .score-card.red{border-color:#ffb8b8;box-shadow:0 4px 0 #ef1717,0 12px 24px #ef17171b}
 .score-card.blue{border-color:#8ebcff;box-shadow:0 4px 0 #0865f5,0 12px 24px #0865f51b}
 .label{font-size:13px;font-weight:850;letter-spacing:.06em}.red .label,.red-text{color:var(--red)}.blue .label,.blue-text{color:var(--blue)}
-.total{font-size:46px;line-height:1;font-weight:800;margin-top:2px}
+.total{font-size:46px;line-height:1;font-weight:800;margin-top:2px}.throw-progress{height:18px;margin-top:8px;display:flex;justify-content:center;align-items:center;gap:7px}.throw-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor;opacity:.42}.throw-dot.done{background:currentColor;opacity:1}.throw-dot.next{width:12px;height:12px;opacity:.8;box-shadow:0 0 0 3px currentColor inset}
 .center{text-align:center;padding-top:3px;min-width:0;display:flex;flex-direction:column;align-items:stretch}.round-label{font-size:11px;color:var(--muted);font-weight:750;letter-spacing:.08em}.turn{font-size:15px;font-weight:850;margin:4px 0;white-space:nowrap}.round-score{border-top:1px solid var(--line);padding-top:4px;font-size:13px;white-space:nowrap}.round-confirm{height:32px;margin-top:5px;border:0;border-radius:9px;background:linear-gradient(135deg,#22a45a,#11833f);color:#fff;font-weight:850;font-size:12px;visibility:hidden;pointer-events:none}.round-confirm.show{visibility:visible;pointer-events:auto}
 .playfield{position:relative;flex:1 1 auto;min-height:0;margin-top:10px;border:1.5px dashed #b8c0cf;border-radius:20px;background:radial-gradient(circle at 50% 48%,#fff 0,#f8f9fc 50%,#eef2f8 100%);overflow:hidden;touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
 .miss-label{position:absolute;top:18px;left:18px;color:#687286;font-size:12px;font-weight:800;letter-spacing:.08em;z-index:3}.miss-label:before{content:"⌾";font-size:20px;margin-right:7px;vertical-align:-2px}
@@ -38,9 +38,9 @@ button{font:inherit}
 <body>
 <main class="app">
 <section class="top">
-<div class="score-card red"><div class="label">RED TOTAL</div><div id="redTotal" class="total red-text">0</div></div>
+<div class="score-card red"><div class="label">RED TOTAL</div><div id="redTotal" class="total red-text">0</div><div id="redProgress" class="throw-progress red-text" aria-label="Red throw progress"></div></div>
 <div class="center"><div id="roundLabel" class="round-label">ROUND 1</div><div id="turn" class="turn"></div><div id="roundScore" class="round-score">Round: Even</div><button id="confirmRound" class="round-confirm">Confirm Round</button></div>
-<div class="score-card blue"><div class="label">BLUE TOTAL</div><div id="blueTotal" class="total blue-text">0</div></div>
+<div class="score-card blue"><div class="label">BLUE TOTAL</div><div id="blueTotal" class="total blue-text">0</div><div id="blueProgress" class="throw-progress blue-text" aria-label="Blue throw progress"></div></div>
 </section>
 <section id="playfield" class="playfield">
 <div class="miss-label">MISS AREA</div>
@@ -156,9 +156,18 @@ function renderRoundScore(){
  const p=projected(),names=['Red','Blue']
  document.querySelector('#roundScore').innerHTML=p?'Round: <span class="'+(p.team?'blue-text':'red-text')+'">'+names[p.team]+'</span> +'+p.points:'Round: Even'
 }
+function renderProgress(team){
+ const el=document.querySelector(team?'#blueProgress':'#redProgress')
+ const thrown=game.throws.filter(t=>t.team===team).length
+ const isNext=game.throws.length<8&&currentTeam()===team
+ el.innerHTML=''
+ for(let i=0;i<4;i++){const dot=document.createElement('span');dot.className='throw-dot'+(i<thrown?' done':(isNext&&i===thrown?' next':''));el.appendChild(dot)}
+ el.setAttribute('aria-label',(team?'Blue':'Red')+' has thrown '+thrown+' of 4 bags')
+}
 function render(){
  document.querySelector('#redTotal').textContent=game.scores[0]
  document.querySelector('#blueTotal').textContent=game.scores[1]
+ renderProgress(0);renderProgress(1)
  document.querySelector('#roundLabel').textContent='ROUND '+game.round
  const team=currentTeam(),names=['Red','Blue']
  document.querySelector('#turn').innerHTML=game.throws.length===8?'Round ready':'<span class="'+(team?'blue-text':'red-text')+'">'+names[team]+'</span> • Throw '+(Math.floor(game.throws.length/2)+1)
