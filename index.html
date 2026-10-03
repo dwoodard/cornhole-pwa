@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#18181b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cornhole">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Cornhole Scorekeeper</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#09090b;color:#fafafa;font-family:system-ui,-apple-system,sans-serif;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);min-height:100vh}.app{max-width:560px;margin:auto}h1{font-size:22px;margin:14px 0}.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}.team{background:#18181b;border:1px solid #3f3f46;border-radius:16px;padding:14px;text-align:center}.team.active{outline:2px solid #fafafa}.score{font-size:48px;font-weight:800}.round{margin:14px 0;padding:14px;background:#18181b;border-radius:16px}.throws{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.bag{height:46px;border:1px solid #52525b;border-radius:12px;background:#27272a;color:#fff;font-weight:700}.bag.done{background:#fafafa;color:#09090b}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.actions button,.toolbar button{border:0;border-radius:14px;padding:18px 8px;font-size:16px;font-weight:800}.miss{background:#52525b;color:white}.board{background:#f59e0b;color:#111}.hole{background:#22c55e;color:#071}.toolbar{display:flex;gap:8px;margin-top:14px}.toolbar button{padding:12px;flex:1}.status{min-height:48px;color:#d4d4d8}.winner{font-size:24px;font-weight:800}.hint{font-size:13px;color:#a1a1aa}
+</style>
+</head>
+<body><main class="app">
+<h1>Cornhole Scorekeeper</h1>
+<section class="scores">
+<div id="team0" class="team"><div>Team 1</div><div id="score0" class="score">0</div></div>
+<div id="team1" class="team"><div>Team 2</div><div id="score1" class="score">0</div></div>
+</section>
+<section class="round">
+<div id="status" class="status"></div>
+<div id="throws" class="throws"></div>
+<div class="actions">
+<button class="miss" data-value="0">Miss<br>0</button>
+<button class="board" data-value="1">Board<br>+1</button>
+<button class="hole" data-value="3">Hole<br>+3</button>
+</div>
+<div class="hint">8 bags per round · cancellation scoring · exact 21 · over 21 returns to 11</div>
+</section>
+<div class="toolbar"><button id="undo">Undo</button><button id="swap">Swap Starter</button><button id="new">New Game</button></div>
+</main>
+<script>
+const KEY='cornhole-pwa-v1'
+const fresh=()=>({scores:[0,0],starter:0,throws:[],history:[],winner:null})
+let game=load()
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||fresh()}catch{return fresh()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(game))}
+function snapshot(){game.history.push(JSON.stringify({...game,history:[]}))}
+function addThrow(value){
+ if(game.winner!==null||game.throws.length>=8)return
+ snapshot()
+ const team=(game.starter+game.throws.length)%2
+ game.throws.push({team,value})
+ if(game.throws.length===8)finishRound()
+ save();render()
+}
+function finishRound(){
+ const totals=[0,0]
+ game.throws.forEach(t=>totals[t.team]+=t.value)
+ const diff=totals[0]-totals[1]
+ if(diff!==0){
+  const team=diff>0?0:1
+  game.scores[team]+=Math.abs(diff)
+  if(game.scores[team]>21)game.scores[team]=11
+  if(game.scores[team]===21)game.winner=team
+  game.starter=team
+ }
+ if(game.winner===null)game.throws=[]
+}
+function undo(){
+ const s=game.history.pop();if(!s)return
+ const history=game.history
+ game=JSON.parse(s);game.history=history
+ save();render()
+}
+function newGame(){game=fresh();save();render()}
+function swapStarter(){if(game.throws.length||game.winner!==null)return;game.starter=1-game.starter;save();render()}
+function render(){
+ document.querySelector('#score0').textContent=game.scores[0]
+ document.querySelector('#score1').textContent=game.scores[1]
+ document.querySelector('#team0').classList.toggle('active',game.winner===null&&game.starter===0)
+ document.querySelector('#team1').classList.toggle('active',game.winner===null&&game.starter===1)
+ const status=document.querySelector('#status')
+ status.innerHTML=game.winner!==null?'<div class="winner">Team '+(game.winner+1)+' wins!</div>':'Team '+(game.starter+1)+' starts this round'
+ const throws=document.querySelector('#throws');throws.innerHTML=''
+ for(let i=0;i<8;i++){
+  const b=document.createElement('button');b.className='bag'+(game.throws[i]?' done':'')
+  const team=(game.starter+i)%2
+  b.textContent=game.throws[i]?['Miss','Board','Hole'][game.throws[i].value===3?2:game.throws[i].value]:'T'+(team+1)
+  throws.appendChild(b)
+ }
+}
+document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>addThrow(+b.dataset.value))
+document.querySelector('#undo').onclick=undo
+document.querySelector('#new').onclick=()=>{if(confirm('Start a new game?'))newGame()}
+document.querySelector('#swap').onclick=swapStarter
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js')
+render()
+</script></body></html>
