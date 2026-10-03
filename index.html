@@ -30,7 +30,7 @@ button{font:inherit}
 .bag.red{background:linear-gradient(#ff4437,#d40707)}.bag.blue{background:linear-gradient(#3388ff,#004ed5)}
 .miss-note{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:90%;display:flex;align-items:center;gap:12px;color:#7a8395;font-size:11px;font-weight:800;letter-spacing:.09em;white-space:nowrap}.miss-note:before,.miss-note:after{content:"";height:1px;background:#cbd1dc;flex:1}
 .help{text-align:center;color:#687286;margin:16px 0 14px;font-size:14px}.help span{color:var(--blue);font-size:20px;vertical-align:-2px;margin-right:6px}
-.toolbar{display:grid;grid-template-columns:1fr 1.1fr;gap:12px}.toolbar button{height:64px;border-radius:15px;border:1px solid #d9dde5;background:#fff;color:#0865f5;font-weight:800;font-size:17px;box-shadow:0 5px 12px #18223a18}.toolbar .new{border:0;background:linear-gradient(135deg,#3b8cff,#0055df);color:#fff;box-shadow:0 6px 15px #0865f540}.toolbar .icon{font-size:26px;vertical-align:-3px;margin-right:8px}
+.confirm-wrap{display:none;margin:14px 0 12px;padding:14px;border:1px solid #d9dde5;border-radius:16px;background:#fff;box-shadow:0 5px 12px #18223a12;text-align:center}.confirm-wrap.show{display:block}.confirm-summary{font-size:15px;font-weight:800;margin-bottom:10px}.confirm-wrap button{width:100%;height:58px;border:0;border-radius:14px;background:linear-gradient(135deg,#22a45a,#11833f);color:#fff;font-weight:850;font-size:17px;box-shadow:0 6px 15px #11833f38}.toolbar{display:grid;grid-template-columns:1fr 1.1fr;gap:12px}.toolbar button{height:64px;border-radius:15px;border:1px solid #d9dde5;background:#fff;color:#0865f5;font-weight:800;font-size:17px;box-shadow:0 5px 12px #18223a18}.toolbar .new{border:0;background:linear-gradient(135deg,#3b8cff,#0055df);color:#fff;box-shadow:0 6px 15px #0865f540}.toolbar .icon{font-size:26px;vertical-align:-3px;margin-right:8px}
 .winner{position:absolute;inset:0;z-index:10;background:#ffffffee;display:grid;place-items:center;text-align:center;padding:30px}.winner[hidden]{display:none}.winner h2{font-size:34px;margin:0 0 8px}.winner button{margin-top:18px;border:0;border-radius:14px;padding:15px 25px;background:#0865f5;color:#fff;font-weight:800}
 @media(max-width:390px){.app{padding-left:10px;padding-right:10px}.top{gap:7px}.total{font-size:44px}.turn{font-size:15px}.playfield{min-height:450px;margin-top:20px}.board{left:27%;width:46%}}
 </style>
@@ -49,6 +49,7 @@ button{font:inherit}
 <div id="winner" class="winner" hidden><div><h2 id="winnerText"></h2><div>Exact 21 wins</div><button id="winnerNew">New Game</button></div></div>
 </section>
 <div class="help"><span>☝︎</span>Tap where the bag lands. Drag a bag to correct it.</div>
+<div id="confirmWrap" class="confirm-wrap"><div id="confirmSummary" class="confirm-summary"></div><button id="confirmRound">Confirm Round</button></div>
 <div class="toolbar"><button id="undo"><span class="icon">↶</span>Undo</button><button id="new" class="new"><span class="icon">▱</span>New Game</button></div>
 </main>
 <script>
@@ -76,7 +77,6 @@ function addThrowAt(x,y){
  const r=document.querySelector('#playfield').getBoundingClientRect()
  game.history.push(clone())
  game.throws.push({team:currentTeam(),value:scoreAt(x,y),x:x/r.width,y:y/r.height})
- if(game.throws.length===8)finishRound()
  save();render()
 }
 let gesture=null
@@ -127,17 +127,24 @@ function pointerUp(e){
  }
  e.preventDefault()
 }
-function finishRound(){
+function confirmRound(){
+ if(game.winner!==null||game.throws.length!==8)return
+ game.history.push(clone())
  const p=projected()
  if(p){
   let next=game.scores[p.team]+p.points
   if(next>21)next=11
   game.scores[p.team]=next
   game.starter=p.team
-  if(next===21){game.winner=p.team;return}
+  if(next===21){
+   game.winner=p.team
+   save();render()
+   return
+  }
  }
  game.round++
  game.throws=[]
+ save();render()
 }
 function undo(){
  const state=game.history.pop();if(!state)return
@@ -155,8 +162,18 @@ function render(){
  document.querySelector('#blueTotal').textContent=game.scores[1]
  document.querySelector('#roundLabel').textContent='ROUND '+game.round
  const team=currentTeam(),names=['Red','Blue']
- document.querySelector('#turn').innerHTML='<span class="'+(team?'blue-text':'red-text')+'">'+names[team]+'</span> • Throw '+(Math.floor(game.throws.length/2)+1)
+ document.querySelector('#turn').innerHTML=game.throws.length===8?'Round ready':'<span class="'+(team?'blue-text':'red-text')+'">'+names[team]+'</span> • Throw '+(Math.floor(game.throws.length/2)+1)
  renderRoundScore()
+ const confirmWrap=document.querySelector('#confirmWrap')
+ const confirmSummary=document.querySelector('#confirmSummary')
+ if(game.throws.length===8&&game.winner===null){
+  const p=projected()
+  confirmWrap.classList.add('show')
+  confirmSummary.innerHTML=p?'<span class="'+(p.team?'blue-text':'red-text')+'">'+names[p.team]+'</span> +'+p.points+' this round — adjust bags or confirm':'Round is even — adjust bags or confirm'
+ }else{
+  confirmWrap.classList.remove('show')
+  confirmSummary.textContent=''
+ }
  document.querySelectorAll('.bag').forEach(x=>x.remove())
  const pf=document.querySelector('#playfield')
  game.throws.forEach((t,i)=>{const el=document.createElement('div');el.className='bag '+(t.team?'blue':'red');el.dataset.index=i;el.textContent=Math.floor(i/2)+1;el.style.left=(t.x*100)+'%';el.style.top=(t.y*100)+'%';pf.appendChild(el)})
@@ -168,6 +185,7 @@ playfield.addEventListener('pointerdown',pointerDown)
 playfield.addEventListener('pointermove',pointerMove)
 playfield.addEventListener('pointerup',pointerUp)
 playfield.addEventListener('pointercancel',()=>{gesture=null})
+document.querySelector('#confirmRound').onclick=e=>{e.stopPropagation();confirmRound()}
 document.querySelector('#undo').onclick=e=>{e.stopPropagation();undo()}
 document.querySelector('#new').onclick=()=>{if(confirm('Start a new game?'))reset()}
 document.querySelector('#winnerNew').onclick=e=>{e.stopPropagation();reset()}
