@@ -14,32 +14,32 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:linear-gradient(180deg,#fff 0,#f7f9fc 100%);font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;color:var(--ink)}
 button{font:inherit}
-.app{width:min(100%,520px);margin:auto;min-height:100vh;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 18px)}
-.top{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:10px;align-items:stretch}
-.score-card{background:#fff;border-radius:20px;padding:15px 8px 10px;text-align:center;box-shadow:0 10px 24px #18223a16;border:1.5px solid}
+.app{width:min(100%,520px);margin:auto;height:100dvh;max-height:100dvh;padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 8px);display:flex;flex-direction:column;overflow:hidden}
+.top{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:8px;align-items:stretch;flex:0 0 112px;min-height:0}
+.score-card{background:#fff;border-radius:18px;padding:10px 6px 7px;text-align:center;box-shadow:0 8px 18px #18223a14;border:1.5px solid;min-width:0}
 .score-card.red{border-color:#ffb8b8;box-shadow:0 4px 0 #ef1717,0 12px 24px #ef17171b}
 .score-card.blue{border-color:#8ebcff;box-shadow:0 4px 0 #0865f5,0 12px 24px #0865f51b}
 .label{font-size:13px;font-weight:850;letter-spacing:.06em}.red .label,.red-text{color:var(--red)}.blue .label,.blue-text{color:var(--blue)}
-.total{font-size:52px;line-height:1;font-weight:800;margin-top:4px}
-.center{text-align:center;padding-top:7px}.round-label{font-size:12px;color:var(--muted);font-weight:750;letter-spacing:.08em}.turn{font-size:17px;font-weight:850;margin:7px 0 8px;white-space:nowrap}.round-score{border-top:1px solid var(--line);padding-top:8px;font-size:14px}
-.playfield{position:relative;height:min(67vh,620px);min-height:470px;margin-top:24px;border:1.5px dashed #b8c0cf;border-radius:22px;background:radial-gradient(circle at 50% 48%,#fff 0,#f8f9fc 50%,#eef2f8 100%);overflow:hidden;touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
+.total{font-size:46px;line-height:1;font-weight:800;margin-top:2px}
+.center{text-align:center;padding-top:3px;min-width:0;display:flex;flex-direction:column;align-items:stretch}.round-label{font-size:11px;color:var(--muted);font-weight:750;letter-spacing:.08em}.turn{font-size:15px;font-weight:850;margin:4px 0;white-space:nowrap}.round-score{border-top:1px solid var(--line);padding-top:4px;font-size:13px;white-space:nowrap}.round-confirm{height:32px;margin-top:5px;border:0;border-radius:9px;background:linear-gradient(135deg,#22a45a,#11833f);color:#fff;font-weight:850;font-size:12px;visibility:hidden;pointer-events:none}.round-confirm.show{visibility:visible;pointer-events:auto}
+.playfield{position:relative;flex:1 1 auto;min-height:0;margin-top:10px;border:1.5px dashed #b8c0cf;border-radius:20px;background:radial-gradient(circle at 50% 48%,#fff 0,#f8f9fc 50%,#eef2f8 100%);overflow:hidden;touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
 .miss-label{position:absolute;top:18px;left:18px;color:#687286;font-size:12px;font-weight:800;letter-spacing:.08em;z-index:3}.miss-label:before{content:"⌾";font-size:20px;margin-right:7px;vertical-align:-2px}
 .board{position:absolute;left:29%;top:7%;width:42%;height:78%;border:2px solid #8f96a2;border-radius:15px 15px 11px 11px;background:linear-gradient(90deg,#f3f0e9,#fff,#f1eee7);box-shadow:0 7px 10px #10182725, inset 0 0 25px #fff;z-index:1}
 .hole{position:absolute;left:50%;top:19%;transform:translateX(-50%);width:30%;aspect-ratio:1;border-radius:50%;background:#0d121d;border:4px solid #aab0ba;box-shadow:inset 0 6px 12px #000,0 2px 2px #fff}
 .bag{position:absolute;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:850;font-size:18px;border:2px solid #ffffff88;box-shadow:inset 0 3px 5px #ffffff55,inset 0 -5px 8px #00000033,0 5px 7px #11182755;z-index:4;transform:translate(-50%,-50%);pointer-events:auto;cursor:grab;touch-action:none}
 .bag.red{background:linear-gradient(#ff4437,#d40707)}.bag.blue{background:linear-gradient(#3388ff,#004ed5)}
 .miss-note{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:90%;display:flex;align-items:center;gap:12px;color:#7a8395;font-size:11px;font-weight:800;letter-spacing:.09em;white-space:nowrap}.miss-note:before,.miss-note:after{content:"";height:1px;background:#cbd1dc;flex:1}
-.help{text-align:center;color:#687286;margin:16px 0 14px;font-size:14px}.help span{color:var(--blue);font-size:20px;vertical-align:-2px;margin-right:6px}
-.confirm-wrap{display:none;margin:14px 0 12px;padding:14px;border:1px solid #d9dde5;border-radius:16px;background:#fff;box-shadow:0 5px 12px #18223a12;text-align:center}.confirm-wrap.show{display:block}.confirm-summary{font-size:15px;font-weight:800;margin-bottom:10px}.confirm-wrap button{width:100%;height:58px;border:0;border-radius:14px;background:linear-gradient(135deg,#22a45a,#11833f);color:#fff;font-weight:850;font-size:17px;box-shadow:0 6px 15px #11833f38}.toolbar{display:grid;grid-template-columns:1fr 1.1fr;gap:12px}.toolbar button{height:64px;border-radius:15px;border:1px solid #d9dde5;background:#fff;color:#0865f5;font-weight:800;font-size:17px;box-shadow:0 5px 12px #18223a18}.toolbar .new{border:0;background:linear-gradient(135deg,#3b8cff,#0055df);color:#fff;box-shadow:0 6px 15px #0865f540}.toolbar .icon{font-size:26px;vertical-align:-3px;margin-right:8px}
+.help{flex:0 0 32px;display:flex;align-items:center;justify-content:center;text-align:center;color:#687286;margin:2px 0;font-size:12px;white-space:nowrap}.help span{color:var(--blue);font-size:17px;vertical-align:-2px;margin-right:5px}
+.confirm-wrap{display:none}.toolbar{flex:0 0 50px;display:grid;grid-template-columns:1fr 1.1fr;gap:8px}.toolbar button{height:46px;border-radius:12px;border:1px solid #d9dde5;background:#fff;color:#0865f5;font-weight:800;font-size:15px;box-shadow:0 4px 9px #18223a14}.toolbar .new{border:0;background:linear-gradient(135deg,#3b8cff,#0055df);color:#fff;box-shadow:0 6px 15px #0865f540}.toolbar .icon{font-size:26px;vertical-align:-3px;margin-right:8px}
 .winner{position:absolute;inset:0;z-index:10;background:#ffffffee;display:grid;place-items:center;text-align:center;padding:30px}.winner[hidden]{display:none}.winner h2{font-size:34px;margin:0 0 8px}.winner button{margin-top:18px;border:0;border-radius:14px;padding:15px 25px;background:#0865f5;color:#fff;font-weight:800}
-@media(max-width:390px){.app{padding-left:10px;padding-right:10px}.top{gap:7px}.total{font-size:44px}.turn{font-size:15px}.playfield{min-height:450px;margin-top:20px}.board{left:27%;width:46%}}
+@media(max-width:390px){.app{padding-left:8px;padding-right:8px}.top{gap:6px;flex-basis:106px}.score-card{padding:8px 4px 6px}.label{font-size:11px}.total{font-size:40px}.turn{font-size:13px}.round-score{font-size:12px}.round-confirm{height:29px;font-size:11px}.playfield{margin-top:7px}.board{left:27%;width:46%}.miss-label{top:12px;left:13px}.miss-note{bottom:9px;font-size:9px}.help{font-size:11px;flex-basis:28px}.toolbar{flex-basis:44px}.toolbar button{height:40px;font-size:14px}.toolbar .icon{font-size:21px}}@media(max-height:720px){.top{flex-basis:96px}.score-card{padding-top:7px}.total{font-size:38px}.center{padding-top:0}.turn{margin:2px 0}.round-score{padding-top:2px}.round-confirm{height:27px;margin-top:3px}.playfield{margin-top:6px}.help{flex-basis:25px;font-size:10px}.toolbar{flex-basis:40px}.toolbar button{height:36px}.miss-label{top:10px}.miss-note{bottom:7px}}
 </style>
 </head>
 <body>
 <main class="app">
 <section class="top">
 <div class="score-card red"><div class="label">RED TOTAL</div><div id="redTotal" class="total red-text">0</div></div>
-<div class="center"><div id="roundLabel" class="round-label">ROUND 1</div><div id="turn" class="turn"></div><div id="roundScore" class="round-score">Round: Even</div></div>
+<div class="center"><div id="roundLabel" class="round-label">ROUND 1</div><div id="turn" class="turn"></div><div id="roundScore" class="round-score">Round: Even</div><button id="confirmRound" class="round-confirm">Confirm Round</button></div>
 <div class="score-card blue"><div class="label">BLUE TOTAL</div><div id="blueTotal" class="total blue-text">0</div></div>
 </section>
 <section id="playfield" class="playfield">
@@ -49,7 +49,6 @@ button{font:inherit}
 <div id="winner" class="winner" hidden><div><h2 id="winnerText"></h2><div>Exact 21 wins</div><button id="winnerNew">New Game</button></div></div>
 </section>
 <div class="help"><span>☝︎</span>Tap where the bag lands. Drag a bag to correct it.</div>
-<div id="confirmWrap" class="confirm-wrap"><div id="confirmSummary" class="confirm-summary"></div><button id="confirmRound">Confirm Round</button></div>
 <div class="toolbar"><button id="undo"><span class="icon">↶</span>Undo</button><button id="new" class="new"><span class="icon">▱</span>New Game</button></div>
 </main>
 <script>
@@ -164,15 +163,14 @@ function render(){
  const team=currentTeam(),names=['Red','Blue']
  document.querySelector('#turn').innerHTML=game.throws.length===8?'Round ready':'<span class="'+(team?'blue-text':'red-text')+'">'+names[team]+'</span> • Throw '+(Math.floor(game.throws.length/2)+1)
  renderRoundScore()
- const confirmWrap=document.querySelector('#confirmWrap')
- const confirmSummary=document.querySelector('#confirmSummary')
+ const confirmButton=document.querySelector('#confirmRound')
  if(game.throws.length===8&&game.winner===null){
   const p=projected()
-  confirmWrap.classList.add('show')
-  confirmSummary.innerHTML=p?'<span class="'+(p.team?'blue-text':'red-text')+'">'+names[p.team]+'</span> +'+p.points+' this round — adjust bags or confirm':'Round is even — adjust bags or confirm'
+  confirmButton.classList.add('show')
+  confirmButton.textContent=p?('Confirm '+names[p.team]+' +'+p.points):'Confirm Even'
  }else{
-  confirmWrap.classList.remove('show')
-  confirmSummary.textContent=''
+  confirmButton.classList.remove('show')
+  confirmButton.textContent='Confirm Round'
  }
  document.querySelectorAll('.bag').forEach(x=>x.remove())
  const pf=document.querySelector('#playfield')
